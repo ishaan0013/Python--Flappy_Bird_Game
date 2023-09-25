@@ -32,3 +32,22 @@ if __name__=="__main__":
         pygame.image.load('/Images/8.png').convert_alpha(),
         pygame.image.load('/Images/9.png').convert_alpha(),
     )
+    GAME_SPRITES['message']=pygame.image.load('/Images/message.jpg').convert_alpha()
+    GAME_SPRITES['base']=pygame.image.load('/Images/base.png').convert_alpha()
+    GAME_SPRITES['pipe']=(
+    pygame.transform.rotate(pygame.image.load(PIPE).convert_alpha(),180),
+    pygame.image.load(PIPE).convert_alpha()
+                          )
+    
+    GAME_SOUNDS['die']=pygame.mixer.Sound('/Audio/die.wav')
+    GAME_SOUNDS['hit']=pygame.mixer.Sound('/Audio/hit.wav')
+    GAME_SOUNDS['point']=pygame.mixer.Sound('/Audio/point.wav')
+    GAME_SOUNDS['swoosh']=pygame.mixer.Sound('/Audio/swoosh.wav')
+    GAME_SOUNDS['wing']=pygame.mixer.Sound('/Audio/wing.wav')
+
+    GAME_SPRITES['background']=pygame.image.load(BACKGROUND).convert()
+    GAME_SPRITES['player']=pygame.image.load(PLAYER).convert()
+
+    while True:
+        welcomeScreen()
+        mainGame()
