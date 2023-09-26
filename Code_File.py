@@ -50,10 +50,49 @@ def mainGame():
     playerx = int(Screen_WIDTH/5)
     playery = int(Screen_WIDTH/2)
     basex = 0
+    newPipe1 = getRandomPipe()
+    newPipe2 = getRandomPipe()
+    upperPipes = [
+        {'x': Screen_WIDTH+200, 'y': newPipe1[0]['y']},
+        {'x': Screen_WIDTH+200+(Screen_WIDTH/2), 'y': newPipe2[1]['y']}
+    ]
+    lowerPipes = [
+        {'x': Screen_WIDTH+200, 'y': newPipe1[0]['y']},
+        {'x': Screen_WIDTH+200+(Screen_WIDTH/2), 'y': newPipe2[1]['y']}
+    ]
+
+    pipeVelocityx = -4
+
+    playerVelocityY = -9
+    playerMaxVelocityY = 10
+    playerMinVelocityY = -8
+    playerAccVelocityY = 1
+
+    playerFlapAccv = -8  # velocity while flapping
+    playerFlapped = False
+
+    while True:
+        for event in pygame.event.get():
+            pass
+
+
+def getRandomPipe():
+    """Generate positions of 2 pipes for blitting on screen."""
+    pipeHeight = GAME_SPRITES['pipe'][0].get_height()
+    offset = Screen_HEIGHT/3
+    y2 = offset+random.randrange(0, int(Screen_HEIGHT -
+                                 GAME_SPRITES['base'].get_height()-1.2*offset))
+    pipeX = Screen_WIDTH+10
+    y1 = pipeHeight-y2+offset
+    pipe = [
+        {'x': pipeX, 'y': -y1},
+        {'x': pipeX, 'y': y2}
+
+    ]
+    return pipe
 
 
 # ? Main
-
 if __name__ == "__main__":
     pygame.init()       # *Initalize all pygame modules
     FPSCLOCK = pygame.time.Clock()
