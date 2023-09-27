@@ -73,7 +73,18 @@ def mainGame():
 
     while True:
         for event in pygame.event.get():
-            pass
+            if event.type == QUIT or (event.type == KEYDOWN and event.kry == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_UP):
+                if playery > 0:
+                    playerVelocityY = playerAccVelocityY
+                    playerFlapped = True
+                    GAME_SOUNDS['wing'].play()
+        crashTest = isCollide(playerx, playery, upperPipes, lowerPipes)
+        if crashTest:
+            return
+        playerMidPos = playerx+GAME_SPRITES['player'].get
 
 
 def getRandomPipe():
