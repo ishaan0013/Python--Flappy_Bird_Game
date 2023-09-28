@@ -24,7 +24,7 @@ def welcomeScreen():
     """
     playerx = int(Screen_WIDTH/5)
     playery = int(Screen_HEIGHT-GAME_SPRITES['player'].get_height())/2
-    messagex = int(Screen_WIDTH-GAME_SPRITES['message'].get_height())/3
+    messagex = int(Screen_WIDTH-GAME_SPRITES['message'].get_height())/2
     messagey = int(Screen_HEIGHT*0.13)
     basex = 0
     while True:
@@ -73,7 +73,7 @@ def mainGame():
 
     while True:
         for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.kry == K_ESCAPE):
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_UP):
@@ -101,12 +101,12 @@ def mainGame():
         playery = playery+min(playerVelocityY, GROUNDY-playery-playerHeight)
 
         # *Move Pipes to left of screen
-        for upperPipes, lowerPipes in zip(upperPipes, lowerPipes):
-            upperPipes['x'] += pipeVelocityx
-            lowerPipes['x'] += pipeVelocityx
+        for upperPipe, lowerPipe in zip(upperPipes, lowerPipes):
+            upperPipe['x'] += pipeVelocityx
+            lowerPipe['x'] += pipeVelocityx
 
         # *ADD a new pipe
-        if 0 < upperPipes[0]['x'] or upperPipes[0]['x'] < 5:
+        if 0 < upperPipes[0]['x'] < 5:
             newpipe = getRandomPipe()
             upperPipes.append(newpipe[0])
             lowerPipes.append(newpipe[1])
@@ -141,6 +141,21 @@ def mainGame():
 
 
 def isCollide(playerx, playery, upperPipes, lowerPipes):
+    if playery > GROUNDY - 25 or playery < 0:
+        GAME_SOUNDS['hit'].play()
+        return True
+
+    for pipe in upperPipes:
+        pipeHeight = GAME_SPRITES['pipe'][0].get_height()
+        if (playery < pipeHeight + pipe['y'] and abs(playerx - pipe['x']) < GAME_SPRITES['pipe'][0].get_width()):
+            GAME_SOUNDS['hit'].play()
+            return True
+
+    for pipe in lowerPipes:
+        if (playery + GAME_SPRITES['player'].get_height() > pipe['y']) and abs(playerx - pipe['x']) < GAME_SPRITES['pipe'][0].get_width():
+            GAME_SOUNDS['hit'].play()
+            return True
+
     return False
 
 
