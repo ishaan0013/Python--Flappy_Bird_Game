@@ -54,11 +54,11 @@ def mainGame():
     newPipe2 = getRandomPipe()
     upperPipes = [
         {'x': Screen_WIDTH+200, 'y': newPipe1[0]['y']},
-        {'x': Screen_WIDTH+200+(Screen_WIDTH/2), 'y': newPipe2[1]['y']}
+        {'x': Screen_WIDTH+200+(Screen_WIDTH/2), 'y': newPipe2[0]['y']},
     ]
     lowerPipes = [
-        {'x': Screen_WIDTH+200, 'y': newPipe1[0]['y']},
-        {'x': Screen_WIDTH+200+(Screen_WIDTH/2), 'y': newPipe2[1]['y']}
+        {'x': Screen_WIDTH+200, 'y': newPipe1[1]['y']},
+        {'x': Screen_WIDTH+200+(Screen_WIDTH/2), 'y': newPipe2[1]['y']},
     ]
 
     pipeVelocityx = -4
@@ -68,7 +68,7 @@ def mainGame():
     playerMinVelocityY = -8
     playerAccVelocityY = 1
 
-    playerFlapAccv = -8  # velocity while flapping
+    playerFlapAccv = -8  # *velocity while flapping
     playerFlapped = False
 
     while True:
@@ -78,13 +78,70 @@ def mainGame():
                 sys.exit()
             if event.type == KEYDOWN and (event.key == K_ESCAPE or event.key == K_UP):
                 if playery > 0:
-                    playerVelocityY = playerAccVelocityY
+                    playerVelocityY = playerFlapAccv
                     playerFlapped = True
                     GAME_SOUNDS['wing'].play()
         crashTest = isCollide(playerx, playery, upperPipes, lowerPipes)
         if crashTest:
             return
-        playerMidPos = playerx+GAME_SPRITES['player'].get
+
+        # *Check Score
+        playerMidPos = playerx+GAME_SPRITES['player'].get_width()/2
+        for pipe in upperPipes:
+            pipeMidPos = pipe['x']+GAME_SPRITES['pipe'][0].get_width()/2
+            if pipeMidPos <= playerMidPos < pipeMidPos+4:
+                score += 1
+                print(f"Your score is{score}")
+                GAME_SOUNDS['point'].play()
+        if playerAccVelocityY < playerMaxVelocityY and not playerFlapped:
+            playerVelocityY += playerAccVelocityY
+        if playerFlapped:
+            playerFlapped = False
+        playerHeight = GAME_SPRITES['player'].get_height()
+        playery = playery+min(playerVelocityY, GROUNDY-playery-playerHeight)
+
+        # *Move Pipes to left of screen
+        for upperPipes, lowerPipes in zip(upperPipes, lowerPipes):
+            upperPipes['x'] += pipeVelocityx
+            lowerPipes['x'] += pipeVelocityx
+
+        # *ADD a new pipe
+        if 0 < upperPipes[0]['x'] or upperPipes[0]['x'] < 5:
+            newpipe = getRandomPipe()
+            upperPipes.append(newpipe[0])
+            lowerPipes.append(newpipe[1])
+
+        # *If the pipe is out of screen, remove it:
+        if upperPipes[0]['x'] < -GAME_SPRITES['pipe'][0].get_width():
+            upperPipes.pop(0)
+            lowerPipes.pop(0)
+
+        SCREEN.blit(GAME_SPRITES['background'], (0, 0))
+        for upperPipe, lowerPipe in zip(upperPipes, lowerPipes):
+            SCREEN.blit(GAME_SPRITES['pipe'][0],
+                        (upperPipe['x'], upperPipe['y']))
+            SCREEN.blit(GAME_SPRITES['pipe'][1],
+                        (lowerPipe['x'], lowerPipe['y']))
+
+        SCREEN.blit(GAME_SPRITES['base'], (basex, GROUNDY))
+        SCREEN.blit(GAME_SPRITES['player'], (playerx, playery))
+
+        myDigits = [int(x) for x in list(str(score))]
+        width = 0
+        for digit in myDigits:
+            width += GAME_SPRITES['numbers'][digit].get_width()
+        xOffset = (Screen_WIDTH-width)/2
+
+        for digit in myDigits:
+            SCREEN.blit(GAME_SPRITES['numbers'][digit],
+                        (xOffset, Screen_HEIGHT*0.12))
+            xOffset += GAME_SPRITES['numbers'][digit].get_width()
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
+
+
+def isCollide(playerx, playery, upperPipes, lowerPipes):
+    return False
 
 
 def getRandomPipe():
@@ -135,7 +192,7 @@ if __name__ == "__main__":
     GAME_SOUNDS['wing'] = pygame.mixer.Sound('Audio/wing.wav')
 
     GAME_SPRITES['background'] = pygame.image.load(BACKGROUND).convert()
-    GAME_SPRITES['player'] = pygame.image.load(PLAYER).convert()
+    GAME_SPRITES['player'] = pygame.image.load(PLAYER).convert_alpha()
 
     while True:
         welcomeScreen()
